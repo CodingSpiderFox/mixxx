@@ -21,6 +21,7 @@
 #include "library/trackcollectionmanager.h"
 #include "mixer/playerinfo.h"
 #include "mixer/playermanager.h"
+#include "mixer/previewdeck.h"
 #include "moc_coreservices.cpp"
 #include "preferences/dialog/dlgpreferences.h"
 #include "preferences/settingsmanager.h"
@@ -30,6 +31,7 @@
 #include "skin/skincontrols.h"
 #include "soundio/soundmanager.h"
 #include "sources/soundsourceproxy.h"
+#include "track/track.h"
 #include "util/db/dbconnectionpooled.h"
 #include "util/font.h"
 #include "util/logger.h"
@@ -312,6 +314,10 @@ void CoreServices::initialize(QApplication* pApp) {
     }
 
     m_pPlayerManager->addPreviewDeck();
+    bool shouldWarnBeforeTrackEnd = true; // TODO read this from config
+    if (shouldWarnBeforeTrackEnd == true) {
+        this->addPreviewDeckForSongEndWarning();
+    }
 
     m_pEffectsManager->setup();
 
@@ -543,6 +549,17 @@ std::shared_ptr<QDialog> CoreServices::makeDlgPreferences() const {
             getSettingsManager(),
             getLibrary());
     return pDlgPreferences;
+}
+
+void CoreServices::addPreviewDeckForSongEndWarning() {
+    PreviewDeck* songEndWarningPreviewDeck = nullptr;
+    songEndWarningPreviewDeck = &m_pPlayerManager->addPreviewDeck();
+    // TODO make audio file configurable via settings
+    // TODO ship a default file with mixxx and point to that file - how to make this operating system independent?
+    QString fileLocation = "sample.wav";
+    TrackPointer* defaultSongEndWarningTrack = Track::newTemporary(&fileLocation);
+    songEndWarningPreviewDeck->slotLoadTrack(defaultSongEndWarningTrack);
+    // TODO how to let the track play when 
 }
 
 void CoreServices::finalize() {

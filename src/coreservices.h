@@ -116,6 +116,7 @@ class CoreServices : public QObject {
     void initializeScreensaverManager();
     void initializeLogging();
 
+    void addPreviewDeckForSongEndWarning();
     /// Tear down CoreServices that were previously initialized by `initialize()`.
     void finalize();
 
